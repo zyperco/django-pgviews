@@ -24,7 +24,7 @@ class ViewConfig(apps.AppConfig):
         total = len([a for a in apps.apps.get_app_configs() if a.models_module is not None])
 
         if self.counter == total:
-            if not migrations_ran:
+            if not self.migrations_ran:
                 log.info('No migrations run - skipping sync')
                 return
             log.info('All applications have migrated, time to sync')
