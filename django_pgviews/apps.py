@@ -27,21 +27,20 @@ class ViewConfig(apps.AppConfig):
         )
 
         if self.counter == total:
-            # if not self.migrations_ran:
-            #     log.info('No migrations run - skipping sync')
-            #     return
-            # log.info('All applications have migrated, time to sync')
-            # # Import here otherwise Django doesn't start properly
-            # # (models in app init are not allowed)
-            # from .models import ViewSyncer
-            # vs = ViewSyncer()
-            # vs.run(force=True, update=True)
+            if not self.migrations_ran:
+                log.info("No migrations run - skipping sync")
+                return
+            log.info("All applications have migrated, time to sync")
+            # Import here otherwise Django doesn't start properly
+            # (models in app init are not allowed)
+            from .models import ViewSyncer
 
-            # TODO - make a way to sync mviews sensibly after migrations
-            log.info("No migrations run - skipping sync")
-            return
+            vs = ViewSyncer()
+            vs.run(force=True, update=True)
 
     def ready(self):
         """Find and setup the apps to set the post_migrate hooks for.
         """
-        signals.post_migrate.connect(self.sync_pgviews)
+        # TODO - reimplement this more sensibly
+        # signals.post_migrate.connect(self.sync_pgviews)
+        pass
