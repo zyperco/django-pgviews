@@ -10,7 +10,7 @@ log = logging.getLogger('django_pgviews.sync_pgviews')
 
 
 class ViewSyncer(object):
-    def run(self, force, update, include_materialized_views=False, **options):
+    def run(self, force, update, exclude_materialized_view=False, **options):
         self.synced = []
         backlog = []
         for view_cls in apps.get_models():
@@ -18,7 +18,7 @@ class ViewSyncer(object):
                     issubclass(view_cls, View) and
                     hasattr(view_cls, 'sql')):
                 continue
-            if include_materialized_views is False and issubclass(view_cls, MaterializedView):
+            if exclude_materialized_view is True and issubclass(view_cls, MaterializedView):
                 continue
             backlog.append(view_cls)
         loop = 0
