@@ -28,10 +28,10 @@ class Command(BaseCommand):
             breaking changes have been made to the schema.""")
         parser.add_argument('--exclude_materialized_views',
             action='store_true',
-            dest='exclude_materialized_views',
+            dest='exclude_mviews',
             default=False,
             help="""Exclude materialized views on the sync process.""")
 
-    def handle(self, force, update, exclude_materialized_view, **options):
+    def handle(self, force, update, exclude_mviews, **options):
         vs = ViewSyncer()
-        vs.run(force, update, exclude_materialized_view)
+        vs.run(force, update, exclude_mviews)
