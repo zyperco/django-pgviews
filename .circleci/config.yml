@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  deployment:
+  test:
     docker:
       - image: circleci/python:3.8.0-buster
     steps:
@@ -8,10 +8,19 @@ jobs:
       - run: sudo chown -R circleci:circleci /usr/local/lib/python3.8/site-packages
       - checkout
       - run:
-          command: pip install tox twine
+          command: pip install tox
       - run:
           name: tests
           command: tox
+
+
+  deployment:
+    docker:
+      - image: circleci/python:3.8.0-buster
+    steps:
+      - run: sudo chown -R circleci:circleci /usr/local/bin
+      - run: sudo chown -R circleci:circleci /usr/local/lib/python3.8/site-packages
+      - checkout
       - run:
           name: make packages
           command: |
@@ -27,14 +36,32 @@ jobs:
             TWINE_NON_INTERACTIVE: please
             TWINE_REPOSITORY_URL: https://pypi.zyper.com/simple/ 
             # Also depends on TWINE_USERNAME and TWINE_PASSWORD
-          command: twine upload dist/*
+          command: |
+            # install twine
+            pip install twine
+
+            # upload
+            twine upload dist/*
 
  
 workflows:
   version: 2
+  test-workflow:
+    jobs:
+      - test
+
   deployment-workflow:
     jobs:
+      - test:
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
+
       - deployment:
+          requires:
+            - test
           filters:
               tags:
                 only: /^v.*/
