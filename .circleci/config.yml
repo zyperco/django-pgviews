@@ -1,0 +1,42 @@
+version: 2
+jobs:
+  deployment:
+    docker:
+      - image: circleci/python:3.8.0-buster
+    steps:
+      - run: sudo chown -R circleci:circleci /usr/local/bin
+      - run: sudo chown -R circleci:circleci /usr/local/lib/python3.8/site-packages
+      - checkout
+      - run:
+          name: make packages
+          command: |
+            # create a source distribution
+            python setup.py sdist
+
+            # create a wheel
+            python setup.py bdist_wheel
+
+      - run:
+          name: upload package
+          environment:
+            TWINE_NON_INTERACTIVE: please
+            TWINE_REPOSITORY_URL: https://pypi.zyper.com/simple/ 
+            # Also depends on TWINE_USERNAME and TWINE_PASSWORD
+          command: |
+            # install twine
+            pip install twine
+
+            # upload
+            twine upload dist/*
+
+ 
+workflows:
+  version: 2
+  deployment-workflow:
+    jobs:
+      - deployment:
+          filters:
+              tags:
+                only: /^v.*/
+              branches:
+                ignore: /.*/
